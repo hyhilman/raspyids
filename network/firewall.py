@@ -45,10 +45,10 @@ def block(ip, protocol=None):
         newRule.Target = newRule.create_target(DROP)
 
         chain = iptc.Chain(table, INPUT)
-        chain.insert_rule(newRule)
+        # chain.insert_rule(newRule)
 
         chain = iptc.Chain(table, OUTPUT)
-        chain.insert_rule(newRule)
+        # chain.insert_rule(newRule)
         __logger.debug("Block IP %s", newRule.src)
 
 def unblock(ip):
