@@ -3,6 +3,7 @@ from network import firewall
 from network.firewall import __protocols
 from engine import j48
 from network import packet
+from scapy.all import *
 
 class PythonRaspberryIds:
 
@@ -23,7 +24,6 @@ class PythonRaspberryIds:
 
     def output(self): pass
 
-from scapy.all import *
 def main():
     logger.init()
     ids = PythonRaspberryIds()
