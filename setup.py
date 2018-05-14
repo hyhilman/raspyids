@@ -163,7 +163,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'python-raspberry-ids=RaspyIDS:main',
+            'RaspyIDS=RaspyIDS:main',
         ],
     },
 
