@@ -46,41 +46,50 @@ Size of the tree : 	24
 """
 
 def detect(pkt, blocker=None, unblocker=None):
-    if getattr(pkt[Ether], 'type') == int(b'0x00000800',16):
-        if getattr(pkt[IP], 'tos') == int(b'0x00000000',16):
-            if getattr(pkt[IP], 'proto') <= 6:
-                if getattr(pkt[TCP], 'dataofs')*4 <= 24:
-                    print("TCP DOS")
-                elif getattr(pkt[TCP], 'dataofs')*4 > 24:
-                    if getattr(pkt[TCP], 'window') <= 15725:
-                        print(getattr(pkt[TCP], 'window'))
-                        print("redis")
-                    elif getattr(pkt[TCP], 'window') > 15725:
-                        print("mqtt4")
-            elif getattr(pkt[IP], 'proto') > 6:
-                if getattr(pkt[IP], 'flags') == 2:
-                    print("coap4")
-                elif getattr(pkt[IP], 'flags') == 0:
-                    print("dos_udp4")
-        if getattr(pkt[IP], 'tos') == int(b'0x00000010',16):
-            print("ssh")
-        elif getattr(pkt[IP], 'tos') == int(b'0x000000b8',16):
-            print("ntp")
-    elif getattr(pkt[Ether], 'type') == int(b'0x000086dd',16):
-        if getattr(pkt[IPv6], 'hlim') <= 64:
-            if getattr(pkt[IPv6], 'nh') <= 6:
-                if getattr(pkt[TCP], 'dataofs')*4 <= 24:
-                    print("dos_tcp6")
-                elif getattr(pkt[TCP], 'dataofs')*4 > 24:
-                    print("mqtt6")
-            if getattr(pkt[IPv6], 'nh') > 6:
+    try :
+        ip = pkt[IP].src
+        if getattr(pkt[Ether], 'type') == int(b'0x00000800',16):
+            if getattr(pkt[IP], 'tos') == int(b'0x00000000',16):
+                if getattr(pkt[IP], 'proto') <= 6:
+                    if getattr(pkt[TCP], 'dataofs')*4 <= 24:
+                        logger.warning("dos_tcp4 from %s", ip)
+                        blocker(ip)
+                    elif getattr(pkt[TCP], 'dataofs')*4 > 24:
+                        if getattr(pkt[TCP], 'window') <= 15725:
+                            logger.debug("incoming redis packet from %s", ip)
+                        elif getattr(pkt[TCP], 'window') > 15725:
+                            logger.debug("incoming mqtt4 packet from %s", ip)
+                elif getattr(pkt[IP], 'proto') > 6:
+                    if getattr(pkt[IP], 'flags') == 2:
+                        logger.debug("incoming coap4 packet from %s", ip)
+                    elif getattr(pkt[IP], 'flags') == 0:
+                        logger.warning("dos_udp4 from %s", ip)
+                        blocker(ip)
+            if getattr(pkt[IP], 'tos') == int(b'0x00000010',16):
+                logger.debug("incoming ssh packet from %s", ip)
+            elif getattr(pkt[IP], 'tos') == int(b'0x000000b8',16):
+                logger.debug("incoming ntp packet from %s", ip)
+        elif getattr(pkt[Ether], 'type') == int(b'0x000086dd',16):
+            if getattr(pkt[IPv6], 'hlim') <= 64:
                 if getattr(pkt[IPv6], 'nh') <= 6:
-                    print("dos_udp6")
+                    if getattr(pkt[TCP], 'dataofs')*4 <= 24:
+                        ip = pkt[IP].src
+                        logger.warning("dos_tcp6 from %s", ip)
+                        blocker(ip)
+                    elif getattr(pkt[TCP], 'dataofs')*4 > 24:
+                        logger.debug("incoming mqtt6 packet from %s", ip)
                 if getattr(pkt[IPv6], 'nh') > 6:
-                    print("coap6")
-        if getattr(pkt[IPv6], 'hlim') > 64:
-            print("ICMPv6")
-    elif getattr(pkt[Ether], 'type') == int(b'0x0000888e',16):
-        print("eapol")
-    elif getattr(pkt[Ether], 'type') == int(b'0x00000806',16):
-        print("arp")
+                    if getattr(pkt[IPv6], 'nh') <= 6:
+                        ip = pkt[IP].src
+                        logger.warning("dos_udp6 from %s", ip)
+                        blocker(ip)
+                    if getattr(pkt[IPv6], 'nh') > 6:
+                        logger.debug("incoming coap6 packet from %s", ip)
+            if getattr(pkt[IPv6], 'hlim') > 64:
+                logger.debug("incoming ICMPv6 packet from %s", ip)
+        elif getattr(pkt[Ether], 'type') == int(b'0x0000888e',16):
+            logger.debug("incoming eapol packet from %s", ip)
+        elif getattr(pkt[Ether], 'type') == int(b'0x00000806',16):
+            logger.debug("incoming arp packet from %s", ip)
+    except IndexError:
+        pass

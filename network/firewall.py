@@ -18,26 +18,38 @@ __logger = logging.getLogger('app.'+__name__)
 def block(ip, protocol=None):
     try :
         src = ipaddress.ip_address(ip)
+        if src.version == IPv4:
+            table = iptc.Table(iptc.Table.FILTER)
+        elif src.version == IPv6:
+            table = iptc.Table6(iptc.Table.FILTER)
+    except ValueError:
+        __logger.error('Invalid source ip address to block')
+        raise Exception("Error")
+
+    blocked = False
+    for chain in table.chains:
+        for rule in chain.rules:
+            if rule.src.split('/')[0] == src.exploded:
+                __logger.debug("IP address is already blocked %s", rule.src)
+                blocked = True
+
+    if blocked is False:
         newRule = iptc.Rule()
         newRule.src = src.exploded
+
         if protocol != None:
             if protocol in __protocols:
                 newRule.protocol = protocol
             else :
                 __logger.error("Protocol %s not supported", protocol)
-
         newRule.Target = newRule.create_target(DROP)
 
-        if src.version == IPv4:
-            table = iptc.Table(iptc.Table.FILTER)
-        elif src.version == IPv6:
-            table = iptc.Table6(iptc.Table.FILTER)
-
         chain = iptc.Chain(table, INPUT)
-        __logger.debug("Block IP %s", newRule.src)
         chain.insert_rule(newRule)
-    except ValueError:
-        __logger.error('Invalid source ip address to block')
+
+        chain = iptc.Chain(table, OUTPUT)
+        chain.insert_rule(newRule)
+        __logger.debug("Block IP %s", newRule.src)
 
 def unblock(ip):
     try :
