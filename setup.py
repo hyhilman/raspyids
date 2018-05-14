@@ -163,7 +163,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'raspyids=raspyids:main',
+            'raspyids=ids.raspyids:main',
         ],
     },
 
