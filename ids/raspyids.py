@@ -1,6 +1,6 @@
+from detectionengine import j48
 from output import logger
 from network import firewall
-from detectionengine import j48
 from network import packet
 from scapy.all import *
 
