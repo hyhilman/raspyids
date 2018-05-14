@@ -1,7 +1,7 @@
 from output import logger
 from network import firewall
 from network.firewall import __protocols
-from engine import j48
+from detectionengine import j48
 from network import packet
 from scapy.all import *
 
