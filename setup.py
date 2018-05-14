@@ -21,7 +21,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='python-raspberry-ids',  # Required
+    name='RaspyIDS',  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -163,7 +163,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'python-raspberry-ids=ids:main',
+            'python-raspberry-ids=RaspyIDS:main',
         ],
     },
 
