@@ -1,7 +1,7 @@
-from engine import j48
 from output import logger
 from network import firewall
 from network import packet
+from engine import j48
 from scapy.all import *
 
 class PythonRaspberryIds:

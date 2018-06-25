@@ -1,4 +1,4 @@
-#!/home/hyhilman/python-raspberry-ids/bin/python
+#!/home/hyhilman/raspyids/bin/python
 
 
 #############################################################################
@@ -24,4 +24,4 @@
 import sys
 from scapy.tools.UTscapy import main
 
-exit(main(sys.argv[1:]))
+main(sys.argv[1:])

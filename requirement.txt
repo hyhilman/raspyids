@@ -1,0 +1,2 @@
+python-iptables==0.13.0
+scapy-python3==0.25
