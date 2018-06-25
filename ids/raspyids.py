@@ -1,4 +1,4 @@
-from detectionengine import j48
+from engine import j48
 from output import logger
 from network import firewall
 from network import packet
