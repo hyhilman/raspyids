@@ -6,7 +6,7 @@ def init():
     logger = logging.getLogger('app')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler('app.log')
+    fh = logging.FileHandler('/var/log/app-raspyids.log')
     fh.setLevel(logging.DEBUG)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -21,7 +21,7 @@ def init():
 
 # Custom formatter
 class MyIDSFormatter(logging.Formatter):
-    def __init__(self, fmt='%(name)s: %(message)s', datefmt='%D-%H:%M:%S'):
+    def __init__(self, fmt='%(name)s-%(asctime)s: %(message)s', datefmt='%D-%H:%M:%S'):
         logging.Formatter.__init__(self, fmt=fmt, datefmt=datefmt)
 
     def format(self, record):
