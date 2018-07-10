@@ -53,7 +53,6 @@ def main():
         ids.capture('eth1')
     except (KeyboardInterrupt,SystemExit):
         # init local logger for this file script
-        ids.scapy.show_summary()
         logging.getLogger('app.'+__name__).critical('Program stopped manually! \nSummary of packets %s' % ids.summary())
         sys.exit(0)
 

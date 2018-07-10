@@ -9,7 +9,7 @@ def capture(iface, packethandler=None):
     # conf.L3listen=L3pcapListenSocket
     # conf.L3socket(iface=iface)
     _sniffer =  sniffer(iface, packethandler)
-    print(_sniffer.summary())
+    _sniffer.start()
     return _sniffer
 
 
