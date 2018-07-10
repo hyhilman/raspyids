@@ -20,12 +20,13 @@ class PythonRaspberryIds:
         firewall.show(ip)
 
     def capture(self, iface=None):
-        self._sniffer,self.scapy = packet.capture(iface, self.detect)
+        self._sniffer = packet.capture(iface, self.detect)
         while self._sniffer.isAlive():
             self._sniffer.join(5)
         raise SystemExit('Shuting down sniffer thread!')
 
     def detect(self, pkt):
+        print('Recive new packet', pkt.summary())
         self.packet_summary = decision.detect(pkt, blocker=self.block, unblocker=self.unblock)
 
     def output(self): pass

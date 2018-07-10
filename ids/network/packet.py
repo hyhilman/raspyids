@@ -9,7 +9,8 @@ def capture(iface, packethandler=None):
     # conf.L3listen=L3pcapListenSocket
     # conf.L3socket(iface=iface)
     _sniffer =  sniffer(iface, packethandler)
-    return _sniffer, _sniffer.start()
+    print(_sniffer.summary())
+    return _sniffer
 
 
 class sniffer(Thread):
@@ -19,7 +20,6 @@ class sniffer(Thread):
         self.iface = iface
     def run(self):
         self._sniff =sniff(iface=self.iface, prn=self.packethandler)
-        return self._sniff
 
 # def dissect(pkt, *args):
 #     value = None
