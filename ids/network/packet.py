@@ -19,7 +19,7 @@ class sniffer(Thread):
         self.packethandler = packethandler
         self.iface = iface
     def run(self):
-        self._sniff =sniff(iface=self.iface, prn=self.packethandler)
+        self._sniff =sniff(iface=self.iface, prn=self.packethandler, store=0)
 
 # def dissect(pkt, *args):
 #     value = None

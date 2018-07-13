@@ -10,6 +10,7 @@ UDP  = "udp"
 ICMP = "icmp"
 INPUT  = "INPUT"
 OUTPUT = "OUTPUT"
+FORWARD = "FORWARD"
 
 __ip = [IPv4, IPv6]
 __protocols = [TCP, UDP, ICMP]
@@ -44,28 +45,45 @@ def block(ip, protocol=None):
                 __logger.error("Protocol %s not supported", protocol)
         newRule.Target = newRule.create_target(DROP)
 
-        chain = iptc.Chain(table, INPUT)
-        # chain.insert_rule(newRule)
+        iptc.Chain(table, INPUT).insert_rule(newRule)
+        iptc.Chain(table, OUTPUT).insert_rule(newRule)
+        iptc.Chain(table, FORWARD).insert_rule(newRule)
 
-        chain = iptc.Chain(table, OUTPUT)
-        # chain.insert_rule(newRule)
-        __logger.debug("Block IP %s", newRule.src)
+        # chain = iptc.Chain(table, INPUT)
+        # # chain.insert_rule(newRule)
+        #
+        # chain = iptc.Chain(table, OUTPUT)
+        # # chain.insert_rule(newRule)
+        #
+        # chain = iptc.Chain(table, FORWARD)
+        # # chain.insert_rule(newRule)
+        __logger.warning("Block IP %s", newRule.src)
 
-def unblock(ip):
-    try :
-        src = ipaddress.ip_address(ip)
-        if src.version == IPv4:
-            table = iptc.Table(iptc.Table.FILTER)
-        elif src.version == IPv6:
-            table = iptc.Table6(iptc.Table.FILTER)
+def unblock(ip=None):
+    if ip==None:
+        iptc.Chain(iptc.Table(iptc.Table.FILTER), INPUT).flush()
+        iptc.Chain(iptc.Table(iptc.Table.FILTER), OUTPUT).flush()
+        iptc.Chain(iptc.Table(iptc.Table.FILTER), FORWARD).flush()
+        iptc.Chain(iptc.Table6(iptc.Table.FILTER), INPUT).flush()
+        iptc.Chain(iptc.Table6(iptc.Table.FILTER), OUTPUT).flush()
+        iptc.Chain(iptc.Table6(iptc.Table.FILTER), FORWARD).flush()
+    else:
+        try :
+            src = ipaddress.ip_address(ip)
+            if src.version == IPv4:
+                table = iptc.Table(iptc.Table.FILTER)
+            elif src.version == IPv6:
+                table = iptc.Table6(iptc.Table.FILTER)
 
-        for chain in table.chains:
-            for rule in chain.rules:
-                if rule.src.split('/')[0] == src.exploded:
-                    __logger.debug("Un-Block IP %s", rule.src)
-                    chain.delete_rule(rule)
-    except ValueError:
-        __logger.error('Invalid source ip address to block')
+            for chain in table.chains:
+                for rule in chain.rules:
+                    if rule.src.split('/')[0] == src.exploded:
+                        __logger.debug("Un-Block IP %s", rule.src)
+                        chain.delete_rule(rule)
+        except ValueError:
+            __logger.error('Invalid source ip address to block')
+            __logger.warning("Block IP %s", newRule.src)
+
 
 def show(ip=None):
     if ip is IPv4:
