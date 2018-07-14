@@ -22,6 +22,7 @@ class PythonRaspberryIds:
         firewall.show(ip)
 
     def capture(self, iface=None):
+        logging.getLogger('app.'+__name__).info('listening on interface :%s' % iface)
         self._sniffer = packet.capture(iface, self.detect)
         while self._sniffer.isAlive():
             self._sniffer.join(5)
@@ -48,14 +49,21 @@ class PythonRaspberryIds:
         return output
 
     def exit(self):
-        self.unblock()
         logging.getLogger('app.'+__name__).critical('Program stopped manually! \nSummary of packets %s' % self.summary())
+        logging.getLogger('app.'+__name__).info('Show firewall rules created since IDS on')
+        logging.getLogger('app.'+__name__).info(self.showrule())
+        self.unblock()
+        logging.getLogger('app.'+__name__).info('flush firewall rules')
 
 def main():
+    _p = argparse.ArgumentParser()
+    _p.add_argument("-i", "--iface", help="interface")
+    args = _p.parse_args()
+
     ids = PythonRaspberryIds()
     atexit.register(ids.exit)
     try:
-        ids.capture('eth1')
+        ids.capture(args.iface)
     except (KeyboardInterrupt,SystemExit):
         sys.exit(0)
 
