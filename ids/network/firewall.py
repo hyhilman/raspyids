@@ -22,7 +22,7 @@ def block(ip, protocol=None):
         if src.version == IPv4:
             table = iptc.Table(iptc.Table.FILTER)
         elif src.version == IPv6:
-            table = iptc.Table6(iptc.Table.FILTER)
+            table = iptc.Table6(iptc.Table6.FILTER)
     except ValueError:
         __logger.error('Invalid source ip address to block')
         raise Exception("Error")
@@ -64,16 +64,16 @@ def unblock(ip=None):
         iptc.Chain(iptc.Table(iptc.Table.FILTER), INPUT).flush()
         iptc.Chain(iptc.Table(iptc.Table.FILTER), OUTPUT).flush()
         iptc.Chain(iptc.Table(iptc.Table.FILTER), FORWARD).flush()
-        iptc.Chain(iptc.Table6(iptc.Table.FILTER), INPUT).flush()
-        iptc.Chain(iptc.Table6(iptc.Table.FILTER), OUTPUT).flush()
-        iptc.Chain(iptc.Table6(iptc.Table.FILTER), FORWARD).flush()
+        iptc.Chain(iptc.Table6(iptc.Table6.FILTER), INPUT).flush()
+        iptc.Chain(iptc.Table6(iptc.Table6.FILTER), OUTPUT).flush()
+        iptc.Chain(iptc.Table6(iptc.Table6.FILTER), FORWARD).flush()
     else:
         try :
             src = ipaddress.ip_address(ip)
             if src.version == IPv4:
                 table = iptc.Table(iptc.Table.FILTER)
             elif src.version == IPv6:
-                table = iptc.Table6(iptc.Table.FILTER)
+                table = iptc.Table6(iptc.Table6.FILTER)
 
             for chain in table.chains:
                 for rule in chain.rules:
@@ -88,23 +88,33 @@ def unblock(ip=None):
 def show(ip=None):
     if ip is IPv4:
         table = iptc.Table(iptc.Table.FILTER)
+        __logger.debug("Print IPv4 firewall rules")
         __printrule(table)
     elif ip is IPv6:
-        table = iptc.Table6(iptc.Table.FILTER)
+        table = iptc.Table6(iptc.Table6.FILTER)
+        __logger.debug("Print IPv6 firewall rules")
         __printrule(table)
     else:
         show(IPv4)
         show(IPv6)
 
 def __printrule(table):
+    output = ''
     for chain in table.chains:
-        print("=======================")
-        print("Chain %s" % chain.name)
+        output += "=======================\n"
+        # print("Chain %s" % chain.name)
+        output += "Chain %s" % chain.name
         for rule in chain.rules:
-            print("Rule", "proto:", rule.protocol, "src:", rule.src, "dst:", \
-            rule.dst, "in:", rule.in_interface, "out:", rule.out_interface)
-            print("Matches:",)
+            output += "Rule"+ " proto: "+ rule.protocol+ " src: "+ rule.src+ " dst: "+ \
+            rule.dst+ " in: "+ rule.in_interface+ " out:", rule.out_interface
+            # print("Rule", "proto:", rule.protocol, "src:", rule.src, "dst:", \
+            # rule.dst, "in:", rule.in_interface, "out:", rule.out_interface)
+            output += "Matches:"
+            # print("Matches:",)
             for match in rule.matches:
-                print(match.name,)
-            print("Target:",rule.target.name)
-    print("=======================")
+                output += match.name
+                # print(match.name,)
+            output += "Target:"+rule.target.name
+            # print("Target:",rule.target.name)
+    output += "=======================\n"
+    print(output)

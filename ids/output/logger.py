@@ -12,7 +12,7 @@ def init():
 
     # create console handler with a higher log level
     ch = logging.StreamHandler()
-    ch.setLevel(logging.info)
+    ch.setLevel(logging.INFO)
 
     # create formatter and add it to the handlers
     formatter = MyIDSFormatter()

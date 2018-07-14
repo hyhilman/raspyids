@@ -4,6 +4,7 @@ from .network import firewall
 from .network import packet
 from .engine import decision
 import atexit
+import argparse
 import logging
 import traceback
 
@@ -57,7 +58,7 @@ class PythonRaspberryIds:
 
 def main():
     _p = argparse.ArgumentParser()
-    _p.add_argument("-i", "--iface", help="interface")
+    _p.add_argument("-i", "--iface", help="interface", type=str)
     args = _p.parse_args()
 
     ids = PythonRaspberryIds()
