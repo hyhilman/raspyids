@@ -125,6 +125,13 @@ def detect(pkt, blocker=None, unblocker=None, output=None):
     global PACKET_LIST
     detected = PACKET_LIST['MALICIOUS']['UNDETECTED']
 
+    if pkt[Ether].type==int(b'0x800'):
+        #IPv4
+        ip = pkt[IP].src
+    elif pkt[Ether].type==int(b'0x86DD'):
+        #IPv6
+        ip = pkt[IPv6].src
+
     if getattr(pkt[Ether], 'type') == int(b'0x000086dd',16):
         if getattr(pkt[IPv6], 'plen') <= 1032:
             if getattr(pkt[IPv6], 'plen') <= 325:
@@ -157,7 +164,6 @@ def detect(pkt, blocker=None, unblocker=None, output=None):
         if detected == PACKET_LIST['MALICIOUS']['UNDETECTED']:
             +PACKET_LIST['MALICIOUS']['UNDETECTED']
             logger.warning(detected)
+        else:
+            blocker(ip)
     return PACKET_LIST
-if __name__ == '__main__':
-    from scapy.all import *
-    sniff(prn=detect)
