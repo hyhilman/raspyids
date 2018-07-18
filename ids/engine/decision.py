@@ -6,7 +6,11 @@ logger = logging.getLogger('app.'+__name__)
 === Run information ===
 
 Scheme:       weka.classifiers.trees.J48 -C 0.25 -M 2
-Relation:     out-weka.filters.unsupervised.attribute.RemoveUseless-M23.0-weka.filters.unsupervised.attribute.Remove-V-R53,171,76,75,80,167,145,170,172,174,154,147,132,152,169,79,155-156,135,144,151,146,82,81,91-92,74,70,78,73,149,153,150,175,179,142,139,72,71,177,93,140,176,178,96,94-95,90,84,86,85,87,21,20,22,12,14,13,15,89,10,148,11,83,88,19,168,141,180,114,166,110,115,111,113,112,68,1,52,116,121,181-weka.filters.unsupervised.attribute.Remove-V-R1-5,7,6,8-13,15,14,16-26,82-weka.filters.unsupervised.attribute.Remove-R3,7,12,15,21,24
+Relation:     out-
+weka.filters.unsupervised.attribute.RemoveUseless-M23.0-
+weka.filters.unsupervised.attribute.Remove-V-R53,171,76,75,80,167,145,170,172,174,154,147,132,152,169,79,155-156,135,144,151,146,82,81,91-92,74,70,78,73,149,153,150,175,179,142,139,72,71,177,93,140,176,178,96,94-95,90,84,86,85,87,21,20,22,12,14,13,15,89,10,148,11,83,88,19,168,141,180,114,166,110,115,111,113,112,68,1,52,116,121,181-
+weka.filters.unsupervised.attribute.Remove-V-R1-5,7,6,8-13,15,14,16-26,82-
+weka.filters.unsupervised.attribute.Remove-R3,7,12,15,21,24
 Instances:    117621
 Attributes:   21
               eth.eth.type
@@ -121,7 +125,7 @@ PACKET_LIST = {
   }
 }
 
-def detect(pkt, blocker=None, unblocker=None, output=None):
+def detect(pkt, block=None, unblock=None, output=None):
     global PACKET_LIST
     detected = PACKET_LIST['MALICIOUS']['UNDETECTED']
 
@@ -147,9 +151,9 @@ def detect(pkt, blocker=None, unblocker=None, output=None):
             detected = +PACKET_LIST['NORMAL']
         elif getattr(pkt[IP], 'flags') == int('0x00000000',16):
             if getattr(pkt[IP], 'len') <= 1052:
-                if getattr(pkt[IP], 'len') <= 1052:
+                if getattr(pkt[IP], 'len') <= 689:
                     detected = +PACKET_LIST['NORMAL']
-                elif getattr(pkt[IP], 'len') <= 1052:
+                elif getattr(pkt[IP], 'len') >= 689:
                     detected = +PACKET_LIST['MALICIOUS']['UDP4']
                     logger.warning(detected)
             elif getattr(pkt[IP], 'len') > 1052:
@@ -165,5 +169,5 @@ def detect(pkt, blocker=None, unblocker=None, output=None):
             +PACKET_LIST['MALICIOUS']['UNDETECTED']
             logger.warning(detected)
         else:
-            blocker(ip)
+            block(ip)
     return PACKET_LIST
