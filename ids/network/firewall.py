@@ -21,8 +21,10 @@ def block(ip, protocol=None):
         src = ipaddress.ip_address(ip)
         if src.version == IPv4:
             table = iptc.Table(iptc.Table.FILTER)
+            newRule = iptc.Rule()
         elif src.version == IPv6:
             table = iptc.Table6(iptc.Table6.FILTER)
+            newRule = iptc.Rule6()
     except ValueError:
         __logger.error('Invalid source ip address to block')
         raise Exception("Error")
@@ -30,12 +32,11 @@ def block(ip, protocol=None):
     blocked = False
     for chain in table.chains:
         for rule in chain.rules:
-            if rule.src.split('/')[0] == src.exploded:
+            if ipaddress.ip_address(rule.src.split('/')[0]) == src.explode:
                 __logger.debug("IP address is already blocked %s", rule.src)
                 blocked = True
 
     if blocked is False:
-        newRule = iptc.Rule()
         newRule.src = src.exploded
 
         if protocol != None:
@@ -77,7 +78,7 @@ def unblock(ip=None):
 
             for chain in table.chains:
                 for rule in chain.rules:
-                    if rule.src.split('/')[0] == src.exploded:
+                    if ipaddress.ip_address(rule.src.split('/')[0]) == src.explode:
                         __logger.debug("Un-Block IP %s", rule.src)
                         chain.delete_rule(rule)
         except ValueError:
@@ -101,20 +102,20 @@ def show(ip=None):
 def __printrule(table):
     output = ''
     for chain in table.chains:
-        output += "=======================\n"
+        output += "\n=======================\n"
         # print("Chain %s" % chain.name)
         output += "Chain %s" % chain.name
         for rule in chain.rules:
-            output += "Rule"+ " proto: "+ rule.protocol+ " src: "+ rule.src+ " dst: "+ \
-            rule.dst+ " in: "+ rule.in_interface+ " out:", rule.out_interface
+            output += "\nRule"+ " proto: "+ rule.protocol+ \
+            " src: "+ rule.src+ " dst: "+ rule.dst
             # print("Rule", "proto:", rule.protocol, "src:", rule.src, "dst:", \
             # rule.dst, "in:", rule.in_interface, "out:", rule.out_interface)
-            output += "Matches:"
+            output += " Matches:"
             # print("Matches:",)
             for match in rule.matches:
                 output += match.name
                 # print(match.name,)
-            output += "Target:"+rule.target.name
+            output += " Target:"+rule.target.name
             # print("Target:",rule.target.name)
-    output += "=======================\n"
+    output += "\n=======================\n"
     print(output)

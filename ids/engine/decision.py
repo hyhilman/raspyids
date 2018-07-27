@@ -1,5 +1,5 @@
-from scapy.all import *
 import logging
+import time
 logger = logging.getLogger('app.'+__name__)
 
 """
@@ -127,12 +127,13 @@ PACKET_LIST = {
 
 def detect(pkt, block=None, unblock=None, output=None):
     global PACKET_LIST
+    inittime = time.time()
     detected = PACKET_LIST['MALICIOUS']['UNDETECTED']
 
-    if pkt[Ether].type==int(b'0x800'):
+    if pkt[Ether].type==int(b'0x800',16):
         #IPv4
         ip = pkt[IP].src
-    elif pkt[Ether].type==int(b'0x86DD'):
+    elif pkt[Ether].type==int(b'0x86DD',16):
         #IPv6
         ip = pkt[IPv6].src
 
@@ -167,7 +168,7 @@ def detect(pkt, block=None, unblock=None, output=None):
     if detected != PACKET_LIST['NORMAL']:
         if detected == PACKET_LIST['MALICIOUS']['UNDETECTED']:
             +PACKET_LIST['MALICIOUS']['UNDETECTED']
-            logger.warning(detected)
-        else:
-            block(ip)
+        logger.warning(detected)
+        block(ip)
+    logger.info('Time to proccess packet:\t', time.time() - inittime)
     return PACKET_LIST
