@@ -1,14 +1,26 @@
 from scapy.all import *
+from threading import Thread
 import logging
 
 __logger = logging.getLogger('app.'+__name__)
 
-def capture(iface, callback=None):
+def capture(iface, packethandler=None):
     # conf.L3socket=L3dnetSocket
     # conf.L3listen=L3pcapListenSocket
     # conf.L3socket(iface=iface)
-    return sniff(iface=iface, prn=callback)
-# 
+    _sniffer =  sniffer(iface, packethandler)
+    _sniffer.start()
+    return _sniffer
+
+
+class sniffer(Thread):
+    def __init__(self, iface, packethandler=None):
+        Thread.__init__(self,daemon=True)
+        self.packethandler = packethandler
+        self.iface = iface
+    def run(self):
+        self._sniff =sniff(iface=self.iface, prn=self.packethandler, store=0)
+
 # def dissect(pkt, *args):
 #     value = None
 #     for attribute in args:

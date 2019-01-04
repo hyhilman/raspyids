@@ -1,4 +1,4 @@
-#!/home/hyhilman/python-raspberry-ids/bin/python3
+#!/home/hyhilman/raspyids/bin/python
 
 # -*- coding: utf-8 -*-
 import re
